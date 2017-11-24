@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include "rgb.h"
 
@@ -10,15 +12,16 @@ int simplest_rgb24_split(char *url, int w, int h,int num){
 	unsigned char *pic = (unsigned char *)malloc(w*h*3);
 
 	//Packed mode
-	for(int i=0;i<num;i++){
+	int i;
+	for(i=0;i<num;i++){
 		//R
-		fwrite(pic+j,1,1,fp1);
+		fwrite(pic+i,1,1,fp1);
 
 		//G
-		fwrite(pic+j+1,1,1,fp2);
+		fwrite(pic+i+1,1,1,fp2);
 
 		//B
-		fwrite(pic+j+1+1,1,1,fp3);
+		fwrite(pic+i+1+1,1,1,fp3);
 	}
 
 	free(pic);
@@ -60,12 +63,12 @@ int simplest_rgb24_to_bmp(const char *rgb24path,int width,int height,const char 
 	unsigned char *rgb24_buffer=NULL;
 	FILE *fp_rgb24=NULL,*fp_bmp=NULL;
 	
-	if(fp_rgb24=fopen(rgb24path,"r")==NULL){
+	if((fp_rgb24=fopen(rgb24path,"r"))==NULL){
 		printf("Error : cannot open input rgb24\n");
 		return -1;
 	}
 
-	if(fp_bmp=fopen(bmppath,"w")==NULL){
+	if((fp_bmp=fopen(bmppath,"w"))==NULL){
 		printf("Error : cannot open input rgb24\n");
 		return -1;
 	}
@@ -73,8 +76,8 @@ int simplest_rgb24_to_bmp(const char *rgb24path,int width,int height,const char 
 	rgb24_buffer = (unsigned char *)malloc(width*height*3);
 	fread(rgb24_buffer,1,width*height*3,fp_rgb24);
 
-	m_BMPHeader.imageSize=3*width*height+head_size;
-	m_BMPHeader.startPosition=head_size;
+	m_BMPHeader.imageSize=3*width*height+header_size;
+	m_BMPHeader.startPosition=header_size;
 
 	m_BMPInfoHeader.Length=sizeof(InfoHead);
 	m_BMPInfoHeader.width=width;
@@ -86,7 +89,7 @@ int simplest_rgb24_to_bmp(const char *rgb24path,int width,int height,const char 
 
 	//add head to BMP FILE
 	fwrite(bfType,1,sizeof(bfType),fp_bmp);
-	fwrite(m_BMPHeader,1,sizeof(m_BMPHeader),fp_bmp);
+	fwrite(&m_BMPHeader,1,sizeof(m_BMPHeader),fp_bmp);
 	fwrite(&m_BMPInfoHeader,1,sizeof(m_BMPInfoHeader),fp_bmp);
 	
 	//add pixels data to BMP FILE.The pixels data storage in little Endian
@@ -117,36 +120,38 @@ static unsigned char clip_value(unsigned char x,unsigned char min_val,unsigned c
 } 
 
 //RGB to YUV420  
-static bool RGB24_TO_YUV420(unsigned char *RgbBuf,int w,int h,unsigned char *yuvBuf)  
+static int RGB24_TO_YUV420(unsigned char *RgbBuf,int w,int h,unsigned char *yuvBuf)  
 {  
-    unsigned char*ptrY, *ptrU, *ptrV, *ptrRGB;  
-    memset(yuvBuf,0,w*h*3/2);  
-    ptrY = yuvBuf;  
-    ptrU = yuvBuf + w*h;  
-    ptrV = ptrU + (w*h*1/4);  
-    unsigned char y, u, v, r, g, b;  
-    for (int j = 0; j<h;j++){  
-        ptrRGB = RgbBuf + w*j*3 ;  
-        for (int i = 0;i<w;i++){  
-              
-            r = *(ptrRGB++);  
-            g = *(ptrRGB++);  
-            b = *(ptrRGB++);  
-            y = (unsigned char)( ( 66 * r + 129 * g +  25 * b + 128) >> 8) + 16  ;            
-            u = (unsigned char)( ( -38 * r -  74 * g + 112 * b + 128) >> 8) + 128 ;            
-            v = (unsigned char)( ( 112 * r -  94 * g -  18 * b + 128) >> 8) + 128 ;  
-            *(ptrY++) = clip_value(y,0,255);  
-            if (j%2==0&&i%2 ==0){  
-                *(ptrU++) =clip_value(u,0,255);  
-            }  
-            else{  
-                if (i%2==0){  
-                *(ptrV++) =clip_value(v,0,255);  
-                }  
-            }  
-        }  
-    }  
-    return true;  
+    	unsigned char*ptrY, *ptrU, *ptrV, *ptrRGB;  
+    	memset(yuvBuf,0,w*h*3/2);  
+    	ptrY = yuvBuf;  
+    	ptrU = yuvBuf + w*h;  
+    	ptrV = ptrU + (w*h*1/4);  
+    	unsigned char y, u, v, r, g, b;  
+	int j;
+    	for (j = 0; j<h;j++){  
+    	    ptrRGB = RgbBuf + w*j*3 ;  
+	    int i;
+    	    for (i = 0;i<w;i++){  
+    	          
+    	        r = *(ptrRGB++);  
+    	        g = *(ptrRGB++);  
+    	        b = *(ptrRGB++);  
+    	        y = (unsigned char)( ( 66 * r + 129 * g +  25 * b + 128) >> 8) + 16  ;            
+    	        u = (unsigned char)( ( -38 * r -  74 * g + 112 * b + 128) >> 8) + 128 ;            
+    	        v = (unsigned char)( ( 112 * r -  94 * g -  18 * b + 128) >> 8) + 128 ;  
+    	        *(ptrY++) = clip_value(y,0,255);  
+    	        if (j%2==0&&i%2 ==0){  
+    	            *(ptrU++) =clip_value(u,0,255);  
+    	        }  
+    	        else{  
+    	            if (i%2==0){  
+    	            *(ptrV++) =clip_value(v,0,255);  
+    	            }  
+    	        }  
+    	    }  
+    	}  
+    	return 1;  
 }  
 
 int simplest_rgb24_to_yuv420(char *url_in, int w, int h,int num,char *url_out){ 
@@ -156,7 +161,8 @@ int simplest_rgb24_to_yuv420(char *url_in, int w, int h,int num,char *url_out){
     	unsigned char *pic_rgb24=(unsigned char *)malloc(w*h*3);  
     	unsigned char *pic_yuv420=(unsigned char *)malloc(w*h*3/2);  
   
-    	for(int i=0;i<num;i++){  
+	int i;
+    	for(i=0;i<num;i++){  
     	    fread(pic_rgb24,1,w*h*3,fp);  
     	    RGB24_TO_YUV420(pic_rgb24,w,h,pic_yuv420);  
     	    fwrite(pic_yuv420,1,w*h*3/2,fp1);  

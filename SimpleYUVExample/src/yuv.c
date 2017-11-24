@@ -1,7 +1,9 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include "yuv.h"
+#include <string.h>
 
-int simplest_yuv420_split(char *url,int w,int h,int mun){
+int simplest_yuv420_split(char *url,int w,int h,int num){
 	FILE *fp = fopen(url,"r");
 	FILE *fp1 = fopen("output_420_y.y","w");
 	FILE *fp2 = fopen("output_420_u.y","w");
@@ -10,7 +12,8 @@ int simplest_yuv420_split(char *url,int w,int h,int mun){
 	unsigned char *pic=(unsigned char *)malloc(w*h*3/2); 
 	
 	//for plane mode
-	for(int i=0;i<num;i++){
+	int i;
+	for(i=0;i<num;i++){
 		fread(pic,1,w*h*3/2,fp);	
 		
 		//Y
@@ -39,7 +42,8 @@ int simplest_yuv444_split(char *url, int w, int h,int num){
 	
 	unsigned char *pic=(unsigned char *)malloc(w*h*3);
 	
-	for(int i=0;i<num;i++){
+	int i;	
+	for(i=0;i<num;i++){
 		fread(pic,1,w*h*3,fp);	
 		
 		//Y
@@ -65,7 +69,8 @@ int simplest_yuv420_gray(char *url, int w, int h,int num){
 	
 	unsigned char *pic=(unsigned char *)malloc(w*h*3/2); 
 
-	for(int i=0;i<num;i++){
+	int i;
+	for(i=0;i<num;i++){
 		fread(pic,1,w*h*3/2,fp);	
 		memset(pic+w*h,128,w*h/2);//reset u v weight
 		fwrite(pic,1,w*h*3/2,fp1);
@@ -80,17 +85,18 @@ int simplest_yuv420_gray(char *url, int w, int h,int num){
 
 
 int simplest_yuv420_halfy(char *url, int w, int h,int num){ 
-	FILE *fp	
 	FILE *fp = fopen(url,"r");
 	FILE *fp1 = fopen("output_half.yuv","w");
 	
 	unsigned char *pic=(unsigned char *)malloc(w*h*3/2); 
 
-	for(int i=0;i<num;i++){
+	int i;
+	for(i=0;i<num;i++){
 		fread(pic,1,w*h*3/2,fp);	
 		
-		for(int j = 0,j<w*h;j++){
-			pic[j]=p[j]/2;
+		int j;
+		for(j = 0;j<w*h;j++){
+			pic[j]=pic[j]/2;
 		}
 		
 		fwrite(pic,1,w*h*3/2,fp1);
@@ -104,18 +110,20 @@ int simplest_yuv420_halfy(char *url, int w, int h,int num){
 }
 
 int simplest_yuv420_border(char *url, int w, int h,int border,int num){
-	FILE *fp	
 	FILE *fp = fopen(url,"r");
 	FILE *fp1 = fopen("output_border.yuv","w");
 	
 	unsigned char *pic=(unsigned char *)malloc(w*h*3/2); 
 
-	for(int i=0;i<num;i++){
+	int i;
+	for(i=0;i<num;i++){
 		//for each frame the read point change	
 		fread(pic,1,w*h*3/2,fp);
 		
-		for(int j = 0,j<h;j++){
-			for(int k=0;k<w;k++){
+		int j;
+		for(j=0;j<h;j++){
+			int k;
+			for(k=0;k<w;k++){
 				pic[j*w+k]=255;
 			}	
 		}
