@@ -5,9 +5,9 @@
 
 int simplest_rgb24_split(char *url, int w, int h,int num){
 	FILE *fp = fopen(url,"r");
-	FILE *fp1 = fopen(url,"w");
-	FILE *fp2 = fopen(url,"w");
-	FILE *fp3 = fopen(url,"w");
+    FILE *fp1=fopen("output_r.y","w");  
+    FILE *fp2=fopen("output_g.y","w");  
+    FILE *fp3=fopen("output_b.y","w");
 	
 	unsigned char *pic = (unsigned char *)malloc(w*h*3);
 
@@ -33,26 +33,26 @@ int simplest_rgb24_split(char *url, int w, int h,int num){
 	return 0;
 }
 
-
+//TODO the head size may be error on some compile env.
 int simplest_rgb24_to_bmp(const char *rgb24path,int width,int height,const char *bmppath){
 	typedef struct{
-		long imageSize;
-		long blank;
-		long startPosition;
+		int imageSize;
+		int blank;
+		int startPosition;
 	}BmpHead;
 
 	typedef struct{
-		long Length;
-		long width;
-		long height;
+		int Length;
+		int width;
+		int height;
 		unsigned short colorPlane;
 		unsigned short bitColor;
-		long zipFormat;
-		long realSize;
-		long xPels;
-		long yPels;
-		long colorUse;
-		long colorImportant;
+		int zipFormat;
+		int realSize;
+		int xPels;
+		int yPels;
+		int colorUse;
+		int colorImportant;
 	}InfoHead;
 
 	int i=0,j=0;
@@ -60,6 +60,8 @@ int simplest_rgb24_to_bmp(const char *rgb24path,int width,int height,const char 
 	InfoHead m_BMPInfoHeader={0};
 	char bfType[2]={'B','M'};
 	int header_size=sizeof(bfType)+sizeof(BmpHead)+sizeof(InfoHead);
+    printf("The btType size %d,BmpHead size %d,InfoHead size %d, head size is %d\n"
+    ,sizeof(bfType),sizeof(BmpHead),sizeof(InfoHead),header_size);
 	unsigned char *rgb24_buffer=NULL;
 	FILE *fp_rgb24=NULL,*fp_bmp=NULL;
 	
