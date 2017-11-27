@@ -1,0 +1,8 @@
+to use this demo.you should:
+    1.makedir build;
+    2.cd build;
+    3.cp ../res/* .
+    4.cmake ../
+    5.make
+
+all done
