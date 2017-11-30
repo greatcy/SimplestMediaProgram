@@ -32,7 +32,7 @@ typedef struct{
 	int forbidden_bit;//when network error the forbidden set to 1
 	int nal_reference_idc;//the priority of nalu,low priority will be discard when necessary.
 	int nal_unit_type;
-	char *buf;//contain of nalu
+	char *buf;//contain of nalu the video data
 } Nalu_t;
 
 FILE *h264bitstream=NULL;
